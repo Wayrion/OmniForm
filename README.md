@@ -2,7 +2,7 @@
 
 > **Production-Ready Agentic, Self-Learning Form Autofiller powered by Nebius Token Factory & Chrome Manifest V3**
 
-OmniForm AI is a privacy-first, agentic form-autofilling system. It parses resumes/CVs using **Qwen 2.5 72B**, maps DOM fields intelligently using **Llama 3.3 70B**, triggers synthetic events compatible with modern frontend frameworks (React, Angular, Vue, Workday), and continuously learns new user attributes from manual inputs.
+OmniForm AI is a privacy-first, agentic form-autofilling system. It parses resumes/CVs using **DeepSeek V4.1 Flash**, maps DOM fields intelligently using **GLM 5.3 Flash**, triggers synthetic events compatible with modern frontend frameworks (React, Angular, Vue, Workday), and continuously learns new user attributes from manual inputs.
 
 ---
 
@@ -122,12 +122,12 @@ omniform-ai/
 Open `test-form.html` in your browser (e.g. `file:///.../test-form.html` or via a local static server):
 
 1. **Ingest CV**: In the OmniForm AI side panel, go to **Upload CV** and drag & drop a PDF or text resume.
-   - The backend sends the text to `Qwen/Qwen2.5-72B-Instruct` on Nebius.
+   - The backend sends the text to `deepseek-ai/DeepSeek-V4.1-Flash` on Nebius.
    - The extracted structured profile is automatically saved to `chrome.storage.local`.
 2. **Review Profile**: Switch to the **Profile** tab to inspect, edit, add, or delete key-value pairs.
 3. **Autofill Current Page**: Click the sticky **Autofill Current Page** button.
    - `background.js` requests field extraction from `content.js`.
-   - `meta-llama/Llama-3.3-70B-Instruct` matches your profile data to the form inputs.
+   - `zai-org/GLM-5.3-Flash` matches your profile data to the form inputs.
    - `content.js` populates the fields using prototype property setters and dispatches synthetic `input`, `change`, and `blur` events so React/Vue/Workday register changes.
    - Filled fields highlight in soft green (`#e8f5e9`).
    - The event counters on `test-form.html` update in real time!

@@ -1427,7 +1427,7 @@ export default function App() {
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-purple-600 shrink-0" />
-                  <span>Priority Nebius 2.5 inference (Qwen 235B & Llama 70B)</span>
+                  <span>Priority Nebius inference (DeepSeek V4.1 & GLM 5.3 Flash)</span>
                 </div>
                 <div className="flex items-center gap-2">
                   <Check className="w-3.5 h-3.5 text-purple-600 shrink-0" />
@@ -1599,7 +1599,7 @@ export default function App() {
                 {isAutofilling ? (
                   <>
                     <RefreshCw className="w-4 h-4 animate-spin" />
-                    <span>Matching & Filling via Llama 3.3 70B...</span>
+                    <span>Matching & Filling via GLM 5.3 Flash...</span>
                   </>
                 ) : noCredits ? (
                   <>
