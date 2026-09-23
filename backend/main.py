@@ -30,10 +30,10 @@ NEBIUS_BASE_URL = "https://api.studio.nebius.ai/v1/"
 NEBIUS_API_KEY = os.getenv("NEBIUS_API_KEY", "")
 
 # Verified Model IDs active on Nebius Token Factory
-# Ingest: Qwen/Qwen3-235B-A22B-Instruct-2507 (235B MoE, 262K context, deep document/CV parsing)
-# Mapping: Qwen/Qwen3-30B-A3B-Instruct-2507 (30.5B MoE, ultra-low latency, strict JSON DOM matching)
-INGEST_MODEL = os.getenv("INGEST_MODEL", "Qwen/Qwen3-235B-A22B-Instruct-2507")
-MAPPING_MODEL = os.getenv("MAPPING_MODEL", "Qwen/Qwen3-30B-A3B-Instruct-2507")
+# Ingest: deepseek-ai/DeepSeek-V4.1-Flash (deep document/CV parsing)
+# Mapping: zai-org/GLM-5.3-Flash (ultra-low latency, strict JSON DOM matching)
+INGEST_MODEL = os.getenv("INGEST_MODEL", "deepseek-ai/DeepSeek-V4.1-Flash")
+MAPPING_MODEL = os.getenv("MAPPING_MODEL", "zai-org/GLM-5.3-Flash")
 
 # Helper to get or create client safely across event loops
 def get_nebius_client() -> AsyncOpenAI:
@@ -140,7 +140,7 @@ async def health_check():
 async def ingest_document(file: UploadFile = File(...)):
     """
     Accepts a file upload (PDF/CV).
-    Extracts text and prompts Nebius Qwen/Qwen2.5-72B-Instruct to extract a structured JSON profile.
+    Extracts text and prompts Nebius deepseek-ai/DeepSeek-V4.1-Flash to extract a structured JSON profile.
     """
     current_key = os.getenv("NEBIUS_API_KEY", "")
     if not current_key or current_key == "your_nebius_api_key_here":
@@ -230,7 +230,7 @@ async def ingest_document(file: UploadFile = File(...)):
 async def map_fields(payload: MapFieldsRequest):
     """
     Accepts form_fields (sanitized DOM inputs) and user_profile (saved JSON).
-    Sends both to Nebius meta-llama/Llama-3.3-70B-Instruct to match user data to DOM inputs.
+    Sends both to Nebius zai-org/GLM-5.3-Flash to match user data to DOM inputs.
     """
     current_key = os.getenv("NEBIUS_API_KEY", "")
     if not current_key or current_key == "your_nebius_api_key_here":

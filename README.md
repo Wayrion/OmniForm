@@ -135,6 +135,16 @@ Open `test-form.html` in your browser (e.g. `file:///.../test-form.html` or via 
    - Manually type into the unmapped "Desired Annual Salary" input on `test-form.html`.
    - On change/blur, `content.js` intercepts the change event and transmits `LEARN_NEW_FIELD` to `background.js`.
    - Check the **Learned** tab in the side panel—your newly typed value will appear saved!
+5. **Autofill Caching & Instant Re-fills**:
+   - After filling `test-form.html` once, the field mapping is saved to `siteCache`.
+   - The sticky footer switches to **⚡ Autofill from Cache (0 Credits • Instant)**.
+   - Click it again to see instantaneous form filling without calling the Nebius backend or consuming form credits!
+   - Switch to the **Cache** tab to inspect mapped fields, evict the current page cache, or clear the global cache.
+6. **Plans & Referral Program**:
+   - Navigate to the **Plans** tab.
+   - **PAYG (Pay As You Go)**: Select from 20, 100 (Popular), or 300 form credit packs and top up credits with 1 click.
+   - **Pro Subscription**: Toggle between Monthly ($12/mo) and **Manual Payment Discount** ($8.40/mo, -30% OFF) to unlock unlimited forms.
+   - **Referral Program**: Copy your unique referral invite link (`https://omniform.ai/invite/...`). Free users receive 10 free form credits when inviting friends; paying customers receive 250 bonus AI credits + 20% recurring credit commission!
 
 ---
 

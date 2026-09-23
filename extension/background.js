@@ -28,11 +28,29 @@ async function ensureContentScriptInjected(tabId) {
 }
 
 /**
+ * Helper to produce a clean, stable cache key for a website.
+ * Normalizes HTTP/HTTPS URLs by origin + pathname (ignoring query/hash),
+ * and local file:// paths by pathname.
+ */
+function getSiteCacheKey(rawUrl) {
+  if (!rawUrl) return "unknown";
+  try {
+    const parsed = new URL(rawUrl);
+    if (parsed.protocol === "file:") {
+      return parsed.pathname;
+    }
+    return `${parsed.origin}${parsed.pathname}`;
+  } catch (e) {
+    return rawUrl.split("?")[0].split("#")[0];
+  }
+}
+
+/**
  * Main message orchestrator
  */
 chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.action === "AUTOFILL_REQUEST") {
-    handleAutofillRequest()
+    handleAutofillRequest(request.options || {})
       .then((result) => sendResponse(result))
       .catch((error) => {
         console.error("Autofill error:", error);
@@ -50,17 +68,136 @@ chrome.runtime.onMessage.addListener((request, sender, sendResponse) => {
       });
     return true;
   }
+
+  if (request.action === "GET_CACHE_INFO") {
+    getCacheInfo()
+      .then((result) => sendResponse(result))
+      .catch((error) => {
+        console.error("Error getting cache info:", error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
+
+  if (request.action === "EVICT_SITE_CACHE") {
+    evictSiteCache(request.siteKey)
+      .then((result) => sendResponse(result))
+      .catch((error) => {
+        console.error("Error evicting site cache:", error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
+
+  if (request.action === "CLEAR_ALL_CACHE") {
+    clearAllCache()
+      .then((result) => sendResponse(result))
+      .catch((error) => {
+        console.error("Error clearing all cache:", error);
+        sendResponse({ success: false, error: error.message });
+      });
+    return true;
+  }
+
+  if (request.action === "GET_ACTIVE_TAB_INFO") {
+    getActiveTabInfo()
+      .then((result) => sendResponse(result))
+      .catch((error) => sendResponse({ success: false, error: error.message }));
+    return true;
+  }
 });
+
+/**
+ * Returns current active tab details and site cache key
+ */
+async function getActiveTabInfo() {
+  const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+  if (!activeTab) return { success: false, error: "No active tab" };
+  const siteKey = getSiteCacheKey(activeTab.url);
+  return {
+    success: true,
+    tabId: activeTab.id,
+    url: activeTab.url || "",
+    title: activeTab.title || "",
+    siteKey: siteKey,
+  };
+}
+
+/**
+ * Retrieves the full site cache and current tab's cache entry
+ */
+async function getCacheInfo() {
+  const storageData = await chrome.storage.local.get(["siteCache"]);
+  const siteCache = storageData.siteCache || {};
+
+  let currentSiteKey = null;
+  let currentEntry = null;
+
+  try {
+    const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
+    if (activeTab && activeTab.url) {
+      currentSiteKey = getSiteCacheKey(activeTab.url);
+      currentEntry = siteCache[currentSiteKey] || null;
+    }
+  } catch (e) {
+    // Ignore tab query errors
+  }
+
+  return {
+    success: true,
+    siteCache,
+    currentSiteKey,
+    currentEntry,
+  };
+}
+
+/**
+ * Manually evicts a specific website cache entry
+ */
+async function evictSiteCache(siteKey) {
+  if (!siteKey) return { success: false, error: "No siteKey specified" };
+  const storageData = await chrome.storage.local.get(["siteCache"]);
+  const siteCache = storageData.siteCache || {};
+
+  if (siteCache[siteKey]) {
+    delete siteCache[siteKey];
+    await chrome.storage.local.set({ siteCache });
+
+    // Notify side panel
+    chrome.runtime.sendMessage({
+      action: "CACHE_UPDATED",
+      siteCache,
+      evicted: siteKey,
+    }).catch(() => {});
+  }
+
+  return { success: true, evicted: siteKey };
+}
+
+/**
+ * Clears all cached websites
+ */
+async function clearAllCache() {
+  await chrome.storage.local.set({ siteCache: {} });
+  chrome.runtime.sendMessage({
+    action: "CACHE_UPDATED",
+    siteCache: {},
+  }).catch(() => {});
+  return { success: true };
+}
 
 /**
  * Executes the autofill pipeline:
  * 1. Query active tab
- * 2. Extract DOM fields from content.js
- * 3. Load userProfile from chrome.storage.local
- * 4. Request mapping from FastAPI /api/map-fields
- * 5. Inject mapping via content.js FILL_FIELDS
+ * 2. Check siteCache: If found and forceRefresh is false, immediately fill with cached mapping!
+ * 3. Extract DOM fields from content.js
+ * 4. Load userProfile from chrome.storage.local
+ * 5. Request mapping from FastAPI /api/map-fields
+ * 6. Cache mapping in siteCache
+ * 7. Inject mapping via content.js FILL_FIELDS
  */
-async function handleAutofillRequest() {
+async function handleAutofillRequest(options = {}) {
+  const forceRefresh = Boolean(options.forceRefresh);
   const [activeTab] = await chrome.tabs.query({ active: true, currentWindow: true });
   if (!activeTab || !activeTab.id) {
     throw new Error("No active browser tab found.");
@@ -73,7 +210,35 @@ async function handleAutofillRequest() {
 
   await ensureContentScriptInjected(activeTab.id);
 
-  // 1. Extract form fields from the current webpage
+  const siteKey = getSiteCacheKey(activeTab.url);
+
+  // 1. Check if mapping is already cached for this website
+  if (!forceRefresh) {
+    const storageData = await chrome.storage.local.get(["siteCache"]);
+    const siteCache = storageData.siteCache || {};
+    const cachedEntry = siteCache[siteKey];
+
+    if (cachedEntry && cachedEntry.mapping && Object.keys(cachedEntry.mapping).length > 0) {
+      console.log(`[OmniForm AI] Cache HIT for ${siteKey}. Applying cached mappings.`);
+      const fillResponse = await chrome.tabs.sendMessage(activeTab.id, {
+        action: "FILL_FIELDS",
+        mappingData: cachedEntry.mapping,
+      });
+
+      return {
+        success: true,
+        count: fillResponse?.count || 0,
+        mapping: cachedEntry.mapping,
+        fromCache: true,
+        cachedAt: cachedEntry.timestamp,
+        siteKey: siteKey,
+      };
+    }
+  }
+
+  console.log(`[OmniForm AI] Cache MISS or force refresh for ${siteKey}. Requesting AI mapping.`);
+
+  // 2. Extract form fields from the current webpage
   const extractResponse = await chrome.tabs.sendMessage(activeTab.id, {
     action: "EXTRACT_FIELDS",
   });
@@ -88,7 +253,7 @@ async function handleAutofillRequest() {
 
   const formFields = extractResponse.fields;
 
-  // 2. Read saved user profile from chrome.storage.local
+  // 3. Read saved user profile from chrome.storage.local
   const storageData = await chrome.storage.local.get(["userProfile"]);
   const userProfile = storageData.userProfile || {};
 
@@ -96,7 +261,7 @@ async function handleAutofillRequest() {
     throw new Error("User profile is empty. Please upload a CV or add profile details first.");
   }
 
-  // 3. Make POST request to FastAPI backend
+  // 4. Make POST request to FastAPI backend
   const response = await fetch(`${BACKEND_BASE_URL}/api/map-fields`, {
     method: "POST",
     headers: { "Content-Type": "application/json" },
@@ -113,7 +278,32 @@ async function handleAutofillRequest() {
 
   const mappingData = await response.json();
 
-  // 4. Send mapping back to content.js to populate the page
+  // 5. Save successfully mapped fields to siteCache
+  const currentCacheData = await chrome.storage.local.get(["siteCache"]);
+  const updatedSiteCache = currentCacheData.siteCache || {};
+  let hostName = "local";
+  try {
+    hostName = new URL(activeTab.url).hostname || "local";
+  } catch (e) {}
+
+  updatedSiteCache[siteKey] = {
+    siteKey: siteKey,
+    url: activeTab.url,
+    title: activeTab.title || siteKey,
+    hostname: hostName,
+    timestamp: Date.now(),
+    mapping: mappingData,
+    count: Object.keys(mappingData).length,
+  };
+  await chrome.storage.local.set({ siteCache: updatedSiteCache });
+
+  // Broadcast cache update event
+  chrome.runtime.sendMessage({
+    action: "CACHE_UPDATED",
+    siteCache: updatedSiteCache,
+  }).catch(() => {});
+
+  // 6. Send mapping back to content.js to populate the page
   const fillResponse = await chrome.tabs.sendMessage(activeTab.id, {
     action: "FILL_FIELDS",
     mappingData: mappingData,
@@ -123,6 +313,8 @@ async function handleAutofillRequest() {
     success: true,
     count: fillResponse?.count || 0,
     mapping: mappingData,
+    fromCache: false,
+    siteKey: siteKey,
   };
 }
 

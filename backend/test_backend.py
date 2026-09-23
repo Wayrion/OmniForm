@@ -48,8 +48,8 @@ class TestBackendEndpoints(unittest.TestCase):
         data = response.json()
         self.assertEqual(data["status"], "healthy")
         self.assertEqual(data["nebius_base_url"], "https://api.studio.nebius.ai/v1/")
-        self.assertEqual(data["models"]["ingest"], "Qwen/Qwen3-235B-A22B-Instruct-2507")
-        self.assertEqual(data["models"]["mapping"], "Qwen/Qwen3-30B-A3B-Instruct-2507")
+        self.assertEqual(data["models"]["ingest"], "deepseek-ai/DeepSeek-V4.1-Flash")
+        self.assertEqual(data["models"]["mapping"], "zai-org/GLM-5.3-Flash")
 
     @patch("main.nebius_client.chat.completions.create", new_callable=AsyncMock)
     @patch.dict("os.environ", {"NEBIUS_API_KEY": "test-key-12345"})

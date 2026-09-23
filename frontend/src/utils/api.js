@@ -41,38 +41,48 @@ export async function uploadAndIngestDocument(file) {
   return await res.json();
 }
 
-export async function requestAutofill() {
+export async function requestAutofill(options = {}) {
   if (
     typeof chrome !== "undefined" &&
     chrome.runtime &&
     typeof chrome.runtime.sendMessage === "function"
   ) {
     return new Promise((resolve, reject) => {
-      chrome.runtime.sendMessage({ action: "AUTOFILL_REQUEST" }, (response) => {
-        if (chrome.runtime.lastError) {
-          return reject(new Error(chrome.runtime.lastError.message));
+      chrome.runtime.sendMessage(
+        { action: "AUTOFILL_REQUEST", options },
+        (response) => {
+          if (chrome.runtime.lastError) {
+            return reject(new Error(chrome.runtime.lastError.message));
+          }
+          if (!response) {
+            return reject(new Error("No response received from background service worker."));
+          }
+          if (!response.success) {
+            return reject(new Error(response.error || "Autofill failed."));
+          }
+          resolve(response);
         }
-        if (!response) {
-          return reject(new Error("No response received from background service worker."));
-        }
-        if (!response.success) {
-          return reject(new Error(response.error || "Autofill failed."));
-        }
-        resolve(response);
-      });
+      );
     });
   } else {
     // Development fallback simulation
     return new Promise((resolve) => {
       setTimeout(() => {
+        const isForce = Boolean(options.forceRefresh);
         resolve({
           success: true,
-          count: 5,
+          count: 6,
           simulated: true,
-          message: "Dev preview: Autofill simulated outside of Chrome extension.",
+          fromCache: !isForce,
+          siteKey: window.location.origin + window.location.pathname,
+          cachedAt: Date.now() - 1000 * 60 * 5,
+          message: isForce
+            ? "Dev preview: Re-queried with AI (force refreshed)."
+            : "Dev preview: Autofill restored from cache (instant).",
         });
-      }, 800);
+      }, 500);
     });
   }
 }
+
 
