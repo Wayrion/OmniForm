@@ -1,0 +1,42 @@
+# Environment & Secrets
+.env
+.env.local
+*.env
+!.env.example
+
+# Python
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.Python
+.venv/
+backend/.venv/
+venv/
+env/
+ENV/
+*.egg-info/
+*.egg
+
+# Node & Frontend
+node_modules/
+frontend/node_modules/
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+.npm
+
+# Operating System Files
+.DS_Store
+Thumbs.db
+*.swp
+*.swo
+*~
+
+# IDE & Editor Files
+.idea/
+.vscode/
+*.sublime-workspace
+*.sublime-project
+

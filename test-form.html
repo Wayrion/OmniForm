@@ -1,0 +1,277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>OmniForm AI - Test Bench Form (Workday / ATS Simulation)</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <style>
+    .filled-highlight {
+      background-color: #e8f5e9 !important;
+      border-color: #81c784 !important;
+      transition: background-color 0.4s ease, border-color 0.4s ease;
+    }
+  </style>
+</head>
+<body class="bg-slate-100 min-h-screen text-slate-800 p-4 md:p-8">
+  <div class="max-w-3xl mx-auto space-y-6">
+
+    <!-- Header Banner -->
+    <header class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-2">
+          <span class="px-2.5 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 text-emerald-800 border border-emerald-200">
+            Workday / ATS Simulation
+          </span>
+          <span class="text-xs text-slate-400">OmniForm AI Test Bench</span>
+        </div>
+        <h1 class="text-xl font-bold text-slate-900 mt-1">Senior AI Full-Stack Engineer Application</h1>
+        <p class="text-xs text-slate-500 mt-0.5">Test DOM extraction, synthetic event propagation, and self-learning</p>
+      </div>
+
+      <!-- Live Event Counters -->
+      <div class="flex items-center gap-2 bg-slate-50 p-2.5 rounded-xl border border-slate-200 text-xs">
+        <div class="text-center px-2 border-r border-slate-200">
+          <div id="counter-input" class="text-base font-bold text-emerald-600">0</div>
+          <div class="text-[10px] text-slate-500 font-medium">input</div>
+        </div>
+        <div class="text-center px-2 border-r border-slate-200">
+          <div id="counter-change" class="text-base font-bold text-teal-600">0</div>
+          <div class="text-[10px] text-slate-500 font-medium">change</div>
+        </div>
+        <div class="text-center px-2">
+          <div id="counter-blur" class="text-base font-bold text-indigo-600">0</div>
+          <div class="text-[10px] text-slate-500 font-medium">blur</div>
+        </div>
+      </div>
+    </header>
+
+    <!-- Application Form -->
+    <form id="job-application-form" class="space-y-6" onsubmit="event.preventDefault(); alert('Application submitted successfully!');">
+
+      <!-- Section 1: Personal Information -->
+      <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-emerald-500"></span>
+          Personal Information
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="first_name" class="block text-xs font-medium text-slate-700 mb-1">First Name *</label>
+            <input type="text" id="first_name" name="first_name" required placeholder="e.g. Jane"
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+          </div>
+
+          <div>
+            <label for="last_name" class="block text-xs font-medium text-slate-700 mb-1">Last Name *</label>
+            <input type="text" id="last_name" name="last_name" required placeholder="e.g. Doe"
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+          </div>
+
+          <div>
+            <label for="email" class="block text-xs font-medium text-slate-700 mb-1">Email Address *</label>
+            <input type="email" id="email" name="email" required placeholder="jane.doe@example.com"
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+          </div>
+
+          <div>
+            <label for="phone" class="block text-xs font-medium text-slate-700 mb-1">Phone Number *</label>
+            <input type="tel" id="phone" name="phone" placeholder="+1 (555) 019-2834"
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+          </div>
+        </div>
+
+        <div class="grid grid-cols-1 md:grid-cols-3 gap-4 pt-2">
+          <div>
+            <label for="city" class="block text-xs font-medium text-slate-700 mb-1">City</label>
+            <input type="text" id="city" name="city" placeholder="San Francisco"
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+          </div>
+
+          <div>
+            <label for="country" class="block text-xs font-medium text-slate-700 mb-1">Country</label>
+            <input type="text" id="country" name="country" placeholder="United States"
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+          </div>
+
+          <div>
+            <label for="linkedin_url" class="block text-xs font-medium text-slate-700 mb-1">LinkedIn Profile</label>
+            <input type="url" id="linkedin_url" name="linkedin" placeholder="https://linkedin.com/in/janedoe"
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+          </div>
+        </div>
+      </section>
+
+      <!-- Section 2: Experience & Education -->
+      <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-teal-500"></span>
+          Experience & Education
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="current_company" class="block text-xs font-medium text-slate-700 mb-1">Current Company / Employer</label>
+            <input type="text" id="current_company" name="current_company" placeholder="Acme AI Labs"
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+          </div>
+
+          <div>
+            <label for="current_title" class="block text-xs font-medium text-slate-700 mb-1">Current Job Title</label>
+            <input type="text" id="current_title" name="current_title" placeholder="Senior AI Engineer"
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+          </div>
+
+          <div>
+            <label for="degree" class="block text-xs font-medium text-slate-700 mb-1">Highest Degree Earned</label>
+            <input type="text" id="degree" name="degree" placeholder="B.S. in Computer Science"
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+          </div>
+
+          <div>
+            <label for="university" class="block text-xs font-medium text-slate-700 mb-1">University / College</label>
+            <input type="text" id="university" name="university" placeholder="Stanford University"
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+          </div>
+        </div>
+
+        <div>
+          <label for="skills_summary" class="block text-xs font-medium text-slate-700 mb-1">Core Technical Skills</label>
+          <input type="text" id="skills_summary" name="skills" placeholder="Python, FastAPI, React, TypeScript, LLMs, Docker"
+            class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+        </div>
+
+        <div>
+          <label for="cover_letter" class="block text-xs font-medium text-slate-700 mb-1">Professional Summary / Cover Note</label>
+          <textarea id="cover_letter" name="cover_letter" rows="3" placeholder="Brief summary of your background and achievements..."
+            class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition"></textarea>
+        </div>
+      </section>
+
+      <!-- Section 3: Compliance & Questions (Dropdowns & Self-Learning Test) -->
+      <section class="bg-white rounded-2xl p-6 shadow-sm border border-slate-200 space-y-4">
+        <h2 class="text-sm font-bold uppercase tracking-wider text-slate-500 flex items-center gap-2">
+          <span class="w-2 h-2 rounded-full bg-indigo-500"></span>
+          Work Authorization & Custom Inquiries
+        </h2>
+
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+          <div>
+            <label for="work_authorization" class="block text-xs font-medium text-slate-700 mb-1">
+              Are you legally authorized to work in this country? *
+            </label>
+            <select id="work_authorization" name="work_authorization" required
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+              <option value="">-- Please Select --</option>
+              <option value="Yes - Citizen or Permanent Resident">Yes - Citizen or Permanent Resident</option>
+              <option value="Yes - Work Visa (H1B/TN/L1)">Yes - Work Visa (H1B/TN/L1)</option>
+              <option value="No - Require Sponsorship">No - Require Sponsorship</option>
+            </select>
+          </div>
+
+          <div>
+            <label for="sponsorship_required" class="block text-xs font-medium text-slate-700 mb-1">
+              Will you now or in the future require visa sponsorship? *
+            </label>
+            <select id="sponsorship_required" name="sponsorship_required" required
+              class="w-full px-3 py-2 text-sm bg-white border border-slate-200 rounded-lg focus:ring-2 focus:ring-emerald-500 focus:outline-none transition">
+              <option value="">-- Please Select --</option>
+              <option value="No">No</option>
+              <option value="Yes">Yes</option>
+            </select>
+          </div>
+        </div>
+
+        <!-- Unmapped field specifically for testing Self-Learning -->
+        <div class="p-3 bg-amber-50/70 border border-amber-200 rounded-xl space-y-2">
+          <div class="flex items-center gap-1.5 text-xs font-semibold text-amber-900">
+            <span>Test Self-Learning (Type here manually):</span>
+          </div>
+          <div>
+            <label for="target_salary" class="block text-xs font-medium text-amber-900 mb-1">
+              Desired Annual Salary / Target Compensation
+            </label>
+            <input type="text" id="target_salary" name="target_salary" placeholder="e.g. $180,000 USD"
+              class="w-full px-3 py-2 text-sm bg-white border border-amber-200 rounded-lg focus:ring-2 focus:ring-amber-500 focus:outline-none transition">
+            <p class="text-[11px] text-amber-700 mt-1">
+              Typing here and changing focus triggers the <code>LEARN_NEW_FIELD</code> message to OmniForm AI!
+            </p>
+          </div>
+        </div>
+      </section>
+
+      <!-- Submit Action -->
+      <div class="flex justify-end gap-3 pt-2">
+        <button type="reset" class="px-4 py-2 text-xs font-medium text-slate-600 hover:bg-slate-200 rounded-lg transition">
+          Clear Form
+        </button>
+        <button type="submit" class="px-5 py-2 text-xs font-semibold text-white bg-slate-900 hover:bg-slate-800 rounded-lg shadow-sm transition">
+          Submit Application
+        </button>
+      </div>
+
+    </form>
+
+    <!-- Recent Event Log -->
+    <div class="bg-white rounded-2xl p-4 shadow-sm border border-slate-200 text-xs">
+      <div class="flex items-center justify-between pb-2 border-b border-slate-100">
+        <span class="font-semibold text-slate-700">DOM Event Log</span>
+        <button onclick="document.getElementById('event-stream').innerHTML = '';" class="text-[11px] text-slate-400 hover:text-slate-600">
+          Clear Log
+        </button>
+      </div>
+      <div id="event-stream" class="mt-2 space-y-1 max-h-40 overflow-y-auto font-mono text-[11px] text-slate-600">
+        <div class="text-slate-400 italic">Waiting for form events...</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Event listeners to measure and demonstrate synthetic framework events
+    let inputCount = 0;
+    let changeCount = 0;
+    let blurCount = 0;
+
+    const stream = document.getElementById('event-stream');
+
+    function logEvent(type, target) {
+      const now = new Date().toLocaleTimeString();
+      const div = document.createElement('div');
+      div.className = 'flex items-center gap-2';
+      div.innerHTML = `
+        <span class="text-slate-400">${now}</span>
+        <span class="px-1.5 py-0.2 rounded font-bold uppercase text-[9px] ${
+          type === 'input' ? 'bg-emerald-100 text-emerald-800' :
+          type === 'change' ? 'bg-teal-100 text-teal-800' : 'bg-indigo-100 text-indigo-800'
+        }">${type}</span>
+        <span class="text-slate-700 font-semibold">${target.id || target.name || 'field'}</span>
+        <span class="text-slate-400 truncate max-w-xs">= "${target.value}"</span>
+      `;
+      if (stream.children.length === 1 && stream.children[0].classList.contains('italic')) {
+        stream.innerHTML = '';
+      }
+      stream.prepend(div);
+    }
+
+    document.addEventListener('input', (e) => {
+      inputCount++;
+      document.getElementById('counter-input').textContent = inputCount;
+      logEvent('input', e.target);
+    }, true);
+
+    document.addEventListener('change', (e) => {
+      changeCount++;
+      document.getElementById('counter-change').textContent = changeCount;
+      logEvent('change', e.target);
+    }, true);
+
+    document.addEventListener('blur', (e) => {
+      blurCount++;
+      document.getElementById('counter-blur').textContent = blurCount;
+      logEvent('blur', e.target);
+    }, true);
+  </script>
+</body>
+</html>
+
